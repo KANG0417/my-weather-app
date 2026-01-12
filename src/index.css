@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+/* title */
 @font-face {
   font-family: "Isamanru";
   src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-10@1.0/GongGothicLight.woff")
@@ -24,9 +25,49 @@
   font-display: swap;
 }
 
+/* nav */
+@font-face {
+    font-family: 'ChangwonDangamRounded';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2511-1@1.0/ChangwonDangamRound-Regular.woff2') format('woff2');
+    font-weight: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'OneStoreMobileGothicTitleFont';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/ONE-Mobile-Title.woff') format('woff');
+    font-weight: normal;
+    font-display: swap;
+}
+
+/* general */
+@font-face {
+    font-family: 'NexonLv2Gothic';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@2.1/NEXON Lv2 Gothic Light.woff') format('woff');
+    font-weight: 300;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'NexonLv2Gothic';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@2.1/NEXON Lv2 Gothic.woff') format('woff');
+    font-weight: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'NexonLv2Gothic';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@2.1/NEXON Lv2 Gothic Bold.woff') format('woff');
+    font-weight: 700;
+    font-display: swap;
+}
+
 @theme {
   /* 2. Tailwind의 기본 폰트를 이사만루로 설정 */
+  --font-sans: "NexonLv2Gothic", ui-sans-serif, system-ui, sans-serif;
+  
   --font-title: "Isamanru", ui-sans-serif, system-ui, sans-serif;
+  --font-nav: "OneStoreMobileGothicTitleFont", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
@@ -46,12 +87,12 @@
 
 body {
   margin: 0;
-  place-items: center;
+  padding: 0;
+  min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+button {
+  cursor: pointer;
 }
 
 @media (prefers-color-scheme: light) {
