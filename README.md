@@ -32,7 +32,7 @@ Bash
 `npm run dev`  
 
 ## 배포주소  
-[날씨요정검색사이트](my-weather-app-teal-seven.vercel.app)
+[날씨요정검색사이트](https://my-weather-app-five-kappa.vercel.app/)
 
 # ✨ 구현 기능
 1. 위치 기반 실시간 날씨 조회  
