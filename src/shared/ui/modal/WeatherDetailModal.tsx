@@ -28,7 +28,7 @@ export const WeatherDetailModal = ({ isOpen, onClose, weather, locationName }: P
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
-      <div className="text-slate-800">
+      <div className="text-slate-800 cursor-default select-none">
         <header className="mb-6 text-center">
           <p className="text-blue-500 font-bold text-sm mb-1">상세 날씨 정보</p>
           <h3 className="text-2xl font-black">{locationName}</h3>
@@ -45,7 +45,7 @@ export const WeatherDetailModal = ({ isOpen, onClose, weather, locationName }: P
 
         {/* 시간별 예보 */}
         <section className="mb-6">
-          <h4 className="text-xs font-bold text-slate-400 uppercase mb-3 ml-1">Hourly Forecast</h4>
+          <h4 className="text-xs font-bold text-slate-400 uppercase mb-3 ml-1">시간대별 기온</h4>
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             {weather.hourly.map((h, i) => (
               <div key={i} className="flex flex-col items-center min-w-[60px] bg-slate-100 p-3 rounded-2xl">

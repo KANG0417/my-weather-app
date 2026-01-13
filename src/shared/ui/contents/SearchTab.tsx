@@ -7,6 +7,7 @@ import { fetchWeather, type WeatherItem } from "@/api/weatherApi";
 import { getWeatherStatus } from "@/shared/lib/getWeatherStatus";
 import { AlertModal } from "../modal/AlertModal";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { SearchBar } from "./SearchBar";
 
 const districtList = districtListRaw as string[];
 
@@ -182,13 +183,7 @@ export const SearchTab = ({ onSelectLocation }: SearchTabProps) => {
       <form onSubmit={handleSearchSubmit} className="w-full max-w-xl relative">
         <fieldset className="flex items-center bg-slate-100 rounded-3xl px-6 h-16 border-2 border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all shadow-inner">
           <button type="submit" className="text-xl mr-3">🔍</button>
-          <input
-            type="search"
-            placeholder="동네 이름을 입력하세요 (예: 서울특별시, 가락동)"
-            className="w-full bg-transparent outline-none font-bold text-slate-700"
-            value={searchTerm}
-            onChange={(e) => { setSearchTerm(e.target.value); setIsSubmitted(false); }}
-          />
+          <SearchBar value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setIsSubmitted(false); }} />
         </fieldset>
 
         {filteredResults.length > 0 && searchTerm !== selectedLocation?.mainName && (
@@ -205,9 +200,9 @@ export const SearchTab = ({ onSelectLocation }: SearchTabProps) => {
         )}
       </form>
 
-      <main className="w-full flex justify-center pt-4 min-h-[400px]"> {/* ✅ 로딩 시 높이 변화 최소화 */}
+      <main className="w-full flex justify-center pt-4 min-h-[400px]"> {/* 로딩 시 높이 변화 최소화 */}
         {isLoading ? (
-          // 1️⃣ 데이터 불러오는 중일 때 표시 (로딩 스피너)
+          // 데이터 불러오는 중일 때 표시
           <div className="flex flex-col items-center justify-center py-20">
             <LoadingSpinner />
             <p className="mt-4 text-slate-400 font-bold animate-pulse">
@@ -215,7 +210,7 @@ export const SearchTab = ({ onSelectLocation }: SearchTabProps) => {
             </p>
           </div>
         ) : selectedLocation && weather ? (
-          // 2️⃣ 로딩이 끝나고 데이터가 있을 때 (기존 카드 UI)
+          // 로딩이 끝나고 데이터가 있을 때 (기존 카드 UI)
           <article className="w-full max-w-lg bg-gradient-to-br from-blue-600 to-blue-400 rounded-[3rem] p-8 text-white shadow-2xl relative animate-in zoom-in-95 duration-300">
             
             <button 
@@ -245,17 +240,17 @@ export const SearchTab = ({ onSelectLocation }: SearchTabProps) => {
               </div>
               <div className="flex gap-4 text-lg font-bold mt-2 text-blue-50">
                 <span className="flex items-center gap-1">
-                  <span className="text-blue-200">↓</span> {weather.minTemp}°
+                  <span className="text-blue-200">↓ 최저</span> {weather.minTemp}°
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="text-red-300">↑</span> {weather.maxTemp}°
+                  <span className="text-red-300">↑ 최고</span> {weather.maxTemp}°
                 </span>
               </div>
             </section>
 
             <section className="w-full bg-white/10 backdrop-blur-md rounded-[2rem] p-5 mb-8">
-              <h4 className="text-[10px] font-black text-blue-100 uppercase mb-4 ml-2 tracking-widest opacity-70">
-                Hourly Forecast
+              <h4 className="text-xs md:text-lg lg:text-lg font-black text-blue-100 uppercase mb-4 ml-2 tracking-widest opacity-70">
+                시간대별 기온
               </h4>
               <div className="flex overflow-x-auto gap-4 pb-2 scrollbar-hide px-1">
                 {weather.hourly.map((item, index) => (
