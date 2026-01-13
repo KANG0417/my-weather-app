@@ -49,10 +49,13 @@ export const useWeather = (searchLocation?: { nx: number; ny: number }) => {
 
         const { items, displayTime } = await fetchWeather(nx, ny);
 
-        // 데이터 가공 로직 (기존과 동일)
         const currentTemp = items.find((i: WeatherItem) => i.category === "TMP")?.fcstValue ?? "0";
+
         const minTemp = items.find((i: WeatherItem) => i.category === "TMN")?.fcstValue ?? 
-                        items.filter((i: WeatherItem) => i.category === "TMP").sort((a,b) => Number(a.fcstValue) - Number(b.fcstValue))[0]?.fcstValue;
+                        items.filter((i: WeatherItem) => i.category === "TMP")
+                            // ✅ (a: WeatherItem, b: WeatherItem) 처럼 타입을 명시합니다.
+                            .sort((a: WeatherItem, b: WeatherItem) => Number(a.fcstValue) - Number(b.fcstValue))[0]?.fcstValue;
+
         const maxTemp = items.find((i: WeatherItem) => i.category === "TMX")?.fcstValue || "-";
 
         const hourlyForecast = items
