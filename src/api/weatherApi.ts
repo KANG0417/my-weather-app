@@ -13,15 +13,10 @@ export interface WeatherItem {
 export const fetchWeather = async (nx: number, ny: number) => {
   const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
   const now = new Date();
-  
-  /**
-   * 1. 시간 로직 수정 (단기예보 getVilageFcst 기준)
-   * 단기예보는 02:00, 05:00, 08:00... 등 3시간 단위로 발표됩니다.
-   * 가장 안전하게 데이터를 가져오기 위해 오늘 가장 최근의 발표 시각을 계산합니다.
-   */
+
   const getBaseTime = () => {
     const hours = now.getHours();
-    // 02:10분 이전이면 전날 23:00 데이터를 가져와야 안전함
+    // 02:10분 이전이면 전날 23:00 데이터를 가져와야 안전
     if (hours < 2 || (hours === 2 && now.getMinutes() < 10)) {
       return { baseDateOffset: -1, baseTime: "2300" };
     }
@@ -45,8 +40,8 @@ export const fetchWeather = async (nx: number, ny: number) => {
                    (targetDate.getMonth() + 1).toString().padStart(2, '0') + 
                    targetDate.getDate().toString().padStart(2, '0');
 
-  // 2. API 호출 (getVilageFcst 사용)
-  // 오늘 하루치와 다음날 일부를 가져오기 위해 numOfRows를 500으로 늘립니다.
+  // API 호출 (getVilageFcst 사용)
+  // 오늘 하루치와 다음날 일부를 가져오기 위해 numOfRows를 500으로 늘림
   const url = `/api/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${API_KEY}&pageNo=1&numOfRows=500&dataType=JSON&base_date=${baseDate}&base_time=${baseTime}&nx=${nx}&ny=${ny}`;
 
   const response = await fetch(url);
