@@ -1,174 +1,72 @@
-import districtListRaw from "@/shared/data/korea_districts.json";
-import { useMemo, useState } from "react";
+# 🌦️ 실시간 위치 기반 날씨 서비스 (Weather App)  
+#### 사용자의 현재 GPS 위치 정보를 활용하여 기상청 단기예보 데이터를 시각화해주는 웹 어플리케이션입니다.
 
-const districtList = districtListRaw as string[];
+# 📅 프로젝트 기간
+2026.01.06 ~ 2024.01.13 (7일)
 
-interface SearchResult {
-  full: string;
-  city: string;
-  sub: string;
-  mainName: string;
-}
+1~3일차: 프로젝트 환경 설정 및 공공데이터포털 API 연동 테스트
 
-interface WeatherInfo {
-  temp: number;
-  condition: string;
-  humidity: number;
-  icon: string;
-}
+4~5일차: 위치 기반(GPS) 좌표 변환 로직 구현 및 커스텀 훅(useWeather) 개발
 
-export const SearchTab = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isSelected, setIsSelected] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false); 
-  const [selectedLocation, setSelectedLocation] = useState<SearchResult | null>(null);
-  const [weather, setWeather] = useState<WeatherInfo | null>(null);
-  const [displayResults, setDisplayResults] = useState<SearchResult[]>([]);
+6~7일차: UI 구현, 즐겨찾기 지역별 날씨 기능 추가 및 버그 수정
 
-  // 1. 실시간 필터링 함수 (공통 사용을 위해 분리)
-  const getFilteredData = (term: string): SearchResult[] => {
-    const normalizedTerm = term.trim().replace(/\s+/g, "");
-    if (normalizedTerm.length < 2) return [];
+# 🚀 프로젝트 실행 방법  
+## 레포지토리 클론  
+깃을 클론해서 내려받고 파일위치를 weather-app으로 들어갑니다.  
+`git clone https://github.com/your-username/weather-app.git`  
 
-    return districtList
-      .filter((addr) => addr.replace(/-/g, "").includes(normalizedTerm))
-      .slice(0, 10)
-      .map((addr) => {
-        const parts = addr.split("-");
-        return {
-          full: addr,
-          city: parts[0] || "",
-          sub: parts.slice(1).join(" "),
-          mainName: parts[parts.length - 1] || ""
-        };
-      });
-  };
+`cd weather-app`    
 
-  // 2. 실시간 자동완성 리스트 (useMemo)
-  const currentFiltered = useMemo(() => getFilteredData(searchTerm), [searchTerm]);
+패키지 관리자를 통해 의존성 설치를 해줍니다.
 
-  if (currentFiltered.length > 0 && currentFiltered !== displayResults) {
-    setDisplayResults(currentFiltered);
-  }
+`npm install`  
 
-  // 3. 날씨 조회 함수
-  const fetchWeather = (result: SearchResult) => {
-    setSearchTerm(result.mainName);
-    setIsSelected(true);
-    setIsSubmitted(false);
-    setSelectedLocation(result);
-    setDisplayResults([]); // 선택 시 리스트 닫기
-    // 시뮬레이션 데이터
-    setWeather({ temp: 18, condition: "맑음", humidity: 42, icon: "☀️" });
-  };
+환경변수 설정을 위해 루트 디렉토리에 .env.local 파일을 생성하고 기상청 API 키를 입력합니다.  
 
-  // 4. ✨ 핵심 수정: 검색 버튼/엔터 클릭 시 로직
-  const handleSearchSubmit = (e?: React.FormEvent) => {
-    e?.preventDefault();
-    const term = searchTerm.trim();
-    
-    // 최소 글자 수 미달 시 초기화
-    if (term.length < 2) {
-      setSelectedLocation(null);
-      setWeather(null);
-      setDisplayResults([]);
-      setIsSubmitted(false);
-      return;
-    }
+`VITE_WEATHER_API_KEY=여러분의_공공데이터포털_인증키(Decoded)`  
 
-    // 🔍 버튼 누르는 시점에 최신 필터 결과 가져오기
-    const resultsAtSubmit = getFilteredData(term);
+프로젝트 실행  
 
-    if (resultsAtSubmit.length > 0) {
-      // 1. 입력값과 동 이름(mainName)이 완전히 일치하는 것 찾기
-      const exactMatch = resultsAtSubmit.find(item => item.mainName === term);
-      // 2. 없으면 가장 첫 번째 검색 결과 선택
-      const target = exactMatch || resultsAtSubmit[0];
-      
-      fetchWeather(target);
-    } else {
-      // 결과가 아예 없는 경우
-      setSelectedLocation(null);
-      setWeather(null);
-      setDisplayResults([]);
-      setIsSubmitted(true); // "정보 없음" 메시지 트리거
-    }
-  };
+Bash  
 
-  return (
-    <section className="flex flex-col w-full max-w-2xl mx-auto p-6 space-y-6">
-      <header>
-        <h2 className="text-2xl font-black text-slate-800">지역 날씨 검색</h2>
-      </header>
+`npm run dev`  
 
-      <form onSubmit={handleSearchSubmit} className="relative">
-        <fieldset className="flex items-center bg-slate-100 rounded-2xl px-5 h-16 border-2 border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all shadow-inner">
-          <legend className="sr-only">지역 검색</legend>
-          <button type="submit" className="text-xl mr-3 hover:scale-110 transition-transform">🔍</button>
-          <input
-            type="search"
-            placeholder="동네 이름을 입력하세요"
-            className="w-full bg-transparent outline-none font-bold text-slate-700"
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setIsSelected(false);
-              setIsSubmitted(false); 
-              if (e.target.value.trim().length < 2) setDisplayResults([]);
-            }}
-          />
-        </fieldset>
+## 배포주소  
+[날씨요정검색사이트](my-weather-app-teal-seven.vercel.app)
 
-        {/* 자동완성 리스트 (검색 전/입력 중에만 노출) */}
-        {!isSelected && !isSubmitted && displayResults.length > 0 && (
-          <nav className="absolute z-10 w-full mt-2 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden">
-            <ul>
-              {displayResults.slice(0, 4).map((result, index) => (
-                <li key={index} className="border-b border-slate-50 last:border-none">
-                  <button
-                    type="button"
-                    onClick={() => fetchWeather(result)}
-                    className="w-full p-4 text-left hover:bg-blue-50 transition-colors"
-                  >
-                    <div className="flex justify-between items-center">
-                      <strong className="font-bold text-slate-800">{result.mainName}</strong>
-                      <small className="text-[10px] text-slate-400 uppercase tracking-tighter">
-                        {result.full.replace(/-/g, " > ")}
-                      </small>
-                    </div>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        )}
-      </form>
+# ✨ 구현 기능
+1. 위치 기반 실시간 날씨 조회  
+navigator.geolocation API를 통해 사용자의 현재 위도/경도를 수집합니다.  
 
-      {/* ⚠️ 결과 없음 알림 */}
-      {isSubmitted && !selectedLocation && (
-        <aside className="flex flex-col items-center justify-center py-12 bg-slate-50 rounded-[2.5rem] border-2 border-dashed border-slate-200 px-6 text-center animate-in fade-in zoom-in-95 duration-300">
-          <span className="text-4xl mb-4" aria-hidden="true">📍</span>
-          <p className="text-slate-600 font-black text-lg">해당 장소의 정보가 제공되지 않습니다.</p>
-        </aside>
-      )}
+기상청 격자 좌표(nx, ny) 변환 로직(convertToNxNy)을 거쳐 정확한 지역 예보를 호출합니다.  
 
-      {/* ☀️ 날씨 상세 정보 카드 */}
-      {selectedLocation && weather && (
-        <article className="w-full bg-blue-600 rounded-[2.5rem] p-8 text-white shadow-xl animate-in slide-in-from-bottom-4 duration-500">
-          <header className="mb-6">
-            <p className="text-blue-100 text-sm font-medium">{selectedLocation.full.replace(/-/g, " / ")}</p>
-            <h3 className="text-4xl font-black mt-1">{selectedLocation.mainName}</h3>
-          </header>
-          
-          <div className="flex justify-between items-end">
-            <section>
-              <p className="text-6xl font-black tracking-tighter">{weather.temp}°</p>
-              <p className="text-xl font-bold mt-2">{weather.condition}</p>
-            </section>
-            <span className="text-6xl mb-2 block" role="img" aria-label={weather.condition}>{weather.icon}</span>
-          </div>
-        </article>
-      )}
-    </section>
-  );
-};
+2. 시간별 상세 예보  
+현재 시간으로부터 향후 12시간 동안의 기온 변화를 리스트 형태로 제공합니다.  
+
+SKY(하늘 상태), PTY(강수 형태) 데이터를 결합하여 날씨 상태 아이콘과 라벨을 매칭합니다.  
+
+3. 지역 검색 및 즐겨찾기 연동  
+searchLocation 인자가 있을 경우 GPS 대신 해당 좌표의 날씨를 우선적으로 조회하는 유연한 데이터 페칭 구조를 가집니다.  
+
+regions.json 데이터를 활용하여 좌표에 해당하는 실제 행정구역 명칭(시/구/동)을 표시합니다.  
+
+# 💡 기술적 의사결정 및 이유  
+1. 커스텀 훅(useWeather)을 통한 로직 분리  
+이유: 날씨 데이터를 페칭하고 가공하는 로직은 컴포넌트의 UI 로직과 분리되어야 재사용성이 높아집니다.
+메인 페이지와 즐겨찾기 카드 등 여러 곳에서 동일한 날씨 데이터가 필요할 때 코드 중복을 최소화하기 위해 커스텀 훅으로 구현했습니다.  
+
+3. 데이터 가공 로직의 캡슐화  
+이유: 기상청 API는 TMP, SKY, PTY 등 카테고리별로 데이터가 파편화되어 제공됩니다.  
+이를 UI에서 직접 다루기엔 복잡도가 높으므로, 훅 내부에서 WeatherInfo 인터페이스 형태로 가공하여 컴포넌트가 바로 렌더링에 사용할 수 있도록 설계했습니다.  
+
+4. TypeScript의 엄격한 타입 체크 적용  
+이유: 기상청 API 응답값은 대부분 문자열 타입이며, TMP나 TMN 등의 계산이 필요합니다.
+sort 함수나 데이터 매핑 시 발생할 수 있는 런타임 에러를 방지하기 위해 WeatherItem 인터페이스를 정의하고 타입을 명시했습니다.  
+
+# 🛠 사용 기술 스택
+| 분류 | 기술 |
+|---|---|
+| Framework | React (Vite) |
+| State | React Hooks (useState, useEffect)  |
+| API | 공공데이터포털 기상청 단기예보 서비스 v2.0 |
+| Language | TypeScript  |
